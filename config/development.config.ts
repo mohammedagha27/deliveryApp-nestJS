@@ -10,4 +10,5 @@ export default () => ({
     username: process.env.DEV_DATABASE_USERNAME,
     password: process.env.DEV_DATABASE_PASSWORD,
   },
+  secretKey: process.env.SECRET_KEY,
 });
