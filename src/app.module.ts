@@ -18,7 +18,5 @@ import configurationFile from 'config';
     AddressModule,
     NotificationModule,
   ],
-  controllers: [],
-  providers: [],
 })
 export class AppModule {}

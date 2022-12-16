@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Transform, TransformFnParams } from 'class-transformer';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateAddressDto {
   @IsNotEmpty()
@@ -10,10 +11,12 @@ export class CreateAddressDto {
   street: string;
 
   @IsNotEmpty()
-  @IsString()
-  longitude: string;
+  @Transform(({ value }: TransformFnParams) => Number(value))
+  @IsNumber()
+  longitude: number;
 
   @IsNotEmpty()
-  @IsString()
-  latitude: string;
+  @Transform(({ value }: TransformFnParams) => Number(value))
+  @IsNumber()
+  latitude: number;
 }

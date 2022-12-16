@@ -4,8 +4,23 @@ import {
   DataType,
   Model,
   PrimaryKey,
+  Scopes,
+  Table,
 } from 'sequelize-typescript';
 
+@Scopes(() => {
+  return {
+    basicData: {
+      attributes: {
+        exclude: ['createdAt', 'updatedAt'],
+      },
+    },
+  };
+})
+@Table({
+  tableName: 'Addresses',
+  timestamps: true,
+})
 export class Address extends Model {
   @PrimaryKey
   @AutoIncrement

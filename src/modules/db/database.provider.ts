@@ -1,6 +1,8 @@
 import { ConfigService } from '@nestjs/config/dist';
 import { Sequelize } from 'sequelize-typescript';
 import { DATABASE_CONFIG, SEQUELIZE } from 'src/common/constants';
+import { Address } from '../address/address.model';
+import { Order } from '../order/order.model';
 import { User } from '../user/user.model';
 
 export const databaseProviders = [
@@ -10,7 +12,7 @@ export const databaseProviders = [
       const sequelize = new Sequelize({
         ...configService.get(DATABASE_CONFIG),
       });
-      sequelize.addModels([User]);
+      sequelize.addModels([User, Address, Order]);
       await sequelize.sync();
       return sequelize;
     },

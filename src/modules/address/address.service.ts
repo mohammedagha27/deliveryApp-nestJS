@@ -1,26 +1,37 @@
-import { Injectable } from '@nestjs/common';
-// import { CreateAddressDto } from './dto/create-address.dto';
+import { Inject, Injectable } from '@nestjs/common';
+import { REPOS } from 'src/common/constants';
+import { Address } from './address.model';
+import { CreateAddressDto } from './dto/create-address.dto';
 // import { UpdateAddressDto } from './dto/update-address.dto';
 
 @Injectable()
 export class AddressService {
-  create(createAddressDto) {
-    return 'This action adds a new address';
+  constructor(
+    @Inject(REPOS.ADDRESSES_REPOSITORY)
+    private readonly addressRepository: typeof Address,
+  ) {}
+  async create(createAddressDto: CreateAddressDto): Promise<Address> {
+    const address = await this.addressRepository.create({
+      ...createAddressDto,
+    });
+    return address;
   }
 
-  findAll() {
-    return `This action returns all address`;
+  async findAddress(longitude: number, latitude: number): Promise<Address> {
+    const address = await this.addressRepository.findOne({
+      where: {
+        longitude,
+        latitude,
+      },
+    });
+    return address;
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} address`;
-  }
-
-  update(id: number, updateAddressDto) {
-    return `This action updates a #${id} address`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} address`;
+  async checkAddressExist(address: CreateAddressDto) {
+    const { longitude, latitude } = address;
+    console.log(longitude, latitude);
+    const dbAddress = await this.findAddress(longitude, latitude);
+    if (dbAddress) return dbAddress.id;
+    const newAddress = await this.create(address);
+    return newAddress.id;
   }
 }
