@@ -5,6 +5,7 @@ const DATABASE_CONFIG = 'database';
 const SEQUELIZE = 'SEQUELIZE';
 const SECRET_KEY = 'secretKey';
 const KM_FEE = 0.5;
+const ROLES = 'roles';
 export {
   ERRORS,
   REPOS,
@@ -13,4 +14,5 @@ export {
   RoleValues,
   SECRET_KEY,
   KM_FEE,
+  ROLES,
 };

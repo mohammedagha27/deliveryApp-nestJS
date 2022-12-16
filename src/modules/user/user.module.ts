@@ -9,5 +9,6 @@ import { AddressModule } from '../address/address.module';
   controllers: [UserController],
   imports: [DatabaseModule, AddressModule],
   providers: [UserService, ...UserProvider],
+  exports: [UserService],
 })
 export class UserModule {}

@@ -74,7 +74,6 @@ export class UserService {
     const user = await this.userRepository
       .scope('basicData')
       .findOne({ where: { id } });
-    if (!user) throw new NotFoundException(ERRORS.USER_NOT_FOUND);
     return user;
   }
 
