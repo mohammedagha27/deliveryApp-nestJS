@@ -15,6 +15,7 @@ import { LoginDto } from './dto/login-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.model';
 import { CreateAddressDto } from '../address/dto/create-address.dto';
+import { PaginationInfoDto } from 'src/common/dto/PaginationInfoDto';
 @Injectable()
 export class UserService {
   constructor(
@@ -65,8 +66,11 @@ export class UserService {
     return { token, ...resData };
   }
 
-  async findAllUsers() {
-    const users = await this.userRepository.scope('basicData').findAll();
+  async findAllUsers(query: PaginationInfoDto) {
+    const { offset, limit } = query;
+    const users = await this.userRepository
+      .scope('basicData')
+      .findAll({ offset, limit });
     return users;
   }
 

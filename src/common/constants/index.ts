@@ -6,6 +6,8 @@ const SEQUELIZE = 'SEQUELIZE';
 const SECRET_KEY = 'secretKey';
 const KM_FEE = 0.5;
 const ROLES = 'roles';
+const DEFAULT_LIMIT = 10;
+const DEFAULT_OFFSET = 0;
 export {
   ERRORS,
   REPOS,
@@ -15,4 +17,6 @@ export {
   SECRET_KEY,
   KM_FEE,
   ROLES,
+  DEFAULT_LIMIT,
+  DEFAULT_OFFSET,
 };

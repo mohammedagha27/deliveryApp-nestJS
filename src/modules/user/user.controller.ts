@@ -6,12 +6,16 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { LoginDto } from './dto/login-user.dto';
 import { ParseIntPipe } from '@nestjs/common/pipes';
 import { Auth } from 'src/common/decorators';
+import { PaginationInfoDto } from 'src/common/dto/PaginationInfoDto';
+import { PaginationInterceptor } from 'src/common/interceptors/pageination.interceptor';
 
 @Controller('users')
 export class UserController {
@@ -29,9 +33,10 @@ export class UserController {
   }
 
   @Auth('admin')
+  @UseInterceptors(PaginationInterceptor)
   @Get()
-  findAll() {
-    return this.userService.findAllUsers();
+  findAll(@Query() query: PaginationInfoDto) {
+    return this.userService.findAllUsers(query);
   }
 
   @Auth('admin')

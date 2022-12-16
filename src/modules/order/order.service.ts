@@ -7,6 +7,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './order.model';
 import { getDistance } from 'geolib';
+import { PaginationInfoDto } from 'src/common/dto/PaginationInfoDto';
 @Injectable()
 export class OrderService {
   constructor(
@@ -56,8 +57,9 @@ export class OrderService {
     const distance_km = distance_m / 1000;
     return distance_km;
   }
-  async findAllOrders(): Promise<Order[]> {
-    const orders = await this.orderRepository.findAll();
+  async findAllOrders(query: PaginationInfoDto): Promise<Order[]> {
+    const { limit, offset } = query;
+    const orders = await this.orderRepository.findAll({ limit, offset });
     return orders;
   }
 

@@ -7,11 +7,16 @@ import {
   Param,
   Delete,
   ParseIntPipe,
+  UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { Auth } from 'src/common/decorators';
+import { PaginationInterceptor } from 'src/common/interceptors/pageination.interceptor';
+import { query } from 'express';
+import { PaginationInfoDto } from 'src/common/dto/PaginationInfoDto';
 
 @Controller('orders')
 export class OrderController {
@@ -25,8 +30,9 @@ export class OrderController {
 
   @Get()
   @Auth('admin')
-  findAll() {
-    return this.orderService.findAllOrders();
+  @UseInterceptors(PaginationInterceptor)
+  findAll(@Query() query: PaginationInfoDto) {
+    return this.orderService.findAllOrders(query);
   }
 
   @Auth('admin', 'user')
