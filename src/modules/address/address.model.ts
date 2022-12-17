@@ -33,9 +33,9 @@ export class Address extends Model {
   @Column(DataType.STRING)
   street: string;
 
-  @Column(DataType.STRING)
-  longitude: string;
+  @Column(DataType.FLOAT)
+  longitude: number;
 
-  @Column(DataType.STRING)
-  latitude: string;
+  @Column(DataType.FLOAT)
+  latitude: number;
 }

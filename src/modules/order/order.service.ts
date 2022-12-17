@@ -12,14 +12,16 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './order.model';
 import { getDistance } from 'geolib';
 import { PaginationInfoDto } from 'src/common/dto/PaginationInfoDto';
-import { RequestUser } from 'src/common/interfaces';
+import { OrderCreatedEvent, RequestUser } from 'src/common/interfaces';
 import { WhereOptions } from 'sequelize';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 @Injectable()
 export class OrderService {
   constructor(
     @Inject(REPOS.ORDER_REPOSITORY)
     private readonly orderRepository: typeof Order,
     private readonly addressService: AddressService,
+    private eventEmitter: EventEmitter2,
   ) {}
   async createOrder(createOrderDto: CreateOrderDto, clientId: number) {
     const { price, sourceAddress, targetAddress } = createOrderDto;
@@ -40,6 +42,13 @@ export class OrderService {
       fee,
       address,
     });
+    const orderCreatedEvent: OrderCreatedEvent = {
+      targetAddress,
+      sourceAddress,
+      clientId,
+      delivererId: order.delivererId,
+    };
+    this.eventEmitter.emit('newOrderCreated', orderCreatedEvent);
     return order;
   }
 
@@ -47,8 +56,9 @@ export class OrderService {
     const fee = distance * KM_FEE;
     return fee;
   }
+
   calculateDistance(
-    sourceAddress: CreateAddressDto,
+    sourceAddress: CreateAddressDto | { latitude: number; longitude: number },
     targetAddress: CreateAddressDto,
   ) {
     const source = {

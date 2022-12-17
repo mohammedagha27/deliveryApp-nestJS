@@ -26,6 +26,10 @@ export class AddressService {
     });
     return address;
   }
+  async findAddressById(id: number): Promise<Address> {
+    const address = await this.addressRepository.findByPk(id);
+    return address;
+  }
   async checkAddressExist(address: CreateAddressDto) {
     const { longitude, latitude } = address;
     const dbAddress = await this.findAddress(longitude, latitude);

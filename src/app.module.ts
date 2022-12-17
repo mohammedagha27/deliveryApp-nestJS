@@ -6,12 +6,14 @@ import { OrderModule } from './modules/order/order.module';
 import { AddressModule } from './modules/address/address.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import configurationFile from 'config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [configurationFile],
       isGlobal: true,
     }),
+    EventEmitterModule.forRoot(),
     DatabaseModule,
     UserModule,
     OrderModule,

@@ -1,6 +1,7 @@
 import ERRORS from './errors';
 import REPOS from './repositories';
 import { RoleValues } from './enums';
+import { EVENTS } from './events';
 const DATABASE_CONFIG = 'database';
 const SEQUELIZE = 'SEQUELIZE';
 const SECRET_KEY = 'secretKey';
@@ -19,4 +20,5 @@ export {
   ROLES,
   DEFAULT_LIMIT,
   DEFAULT_OFFSET,
+  EVENTS,
 };
