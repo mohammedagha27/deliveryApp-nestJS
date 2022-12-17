@@ -46,7 +46,6 @@ export class NotificationGateway
     }
     const user = verifyToken(token, this.configService.get(SECRET_KEY));
     this.logger.log(`client ${user.id} connected`);
-    console.log(user.role);
     if (user.role === RoleValues.ADMIN) {
       client.join(RoleValues.ADMIN);
       this.logger.log(`client ${user.id} joined ${RoleValues.ADMIN}`);
