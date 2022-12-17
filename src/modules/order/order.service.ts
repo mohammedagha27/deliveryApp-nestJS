@@ -1,6 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { Inject } from '@nestjs/common/decorators/core/inject.decorator';
-import { KM_FEE, REPOS } from 'src/common/constants';
+import { KM_FEE, REPOS, RoleValues } from 'src/common/constants';
 import { AddressService } from '../address/address.service';
 import { CreateAddressDto } from '../address/dto/create-address.dto';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -8,6 +12,8 @@ import { UpdateOrderDto } from './dto/update-order.dto';
 import { Order } from './order.model';
 import { getDistance } from 'geolib';
 import { PaginationInfoDto } from 'src/common/dto/PaginationInfoDto';
+import { RequestUser } from 'src/common/interfaces';
+import { WhereOptions } from 'sequelize';
 @Injectable()
 export class OrderService {
   constructor(
@@ -15,7 +21,7 @@ export class OrderService {
     private readonly orderRepository: typeof Order,
     private readonly addressService: AddressService,
   ) {}
-  async createOrder(createOrderDto: CreateOrderDto) {
+  async createOrder(createOrderDto: CreateOrderDto, clientId: number) {
     const { price, sourceAddress, targetAddress } = createOrderDto;
     const sourceAddressId = await this.addressService.checkAddressExist(
       sourceAddress,
@@ -29,7 +35,7 @@ export class OrderService {
     const totalPrice = +price + fee;
     const order = await this.orderRepository.create({
       ...createOrderDto,
-      clientId: 1,
+      clientId,
       totalPrice,
       fee,
       address,
@@ -57,26 +63,52 @@ export class OrderService {
     const distance_km = distance_m / 1000;
     return distance_km;
   }
-  async findAllOrders(query: PaginationInfoDto): Promise<Order[]> {
+  async findAllOrders(
+    query: PaginationInfoDto,
+    user: RequestUser,
+  ): Promise<Order[]> {
     const { limit, offset } = query;
-    const orders = await this.orderRepository.findAll({ limit, offset });
+    const { role, id } = user;
+    let where: WhereOptions<any>;
+    if (role === RoleValues.USER) {
+      where = {
+        clientId: id,
+      };
+    }
+    if (role === RoleValues.DELIVERER) {
+      where = {
+        delivererId: id,
+      };
+    }
+    const orders = await this.orderRepository.findAll({ where, limit, offset });
     return orders;
   }
 
-  async findOrderById(id: number): Promise<Order> {
+  checkOrderOwners(order: Order, user: RequestUser) {
+    const { id, role } = user;
+    if (role === RoleValues.ADMIN) return order;
+    const { clientId, delivererId } = order;
+    if (clientId === id || delivererId === id) return order;
+    else throw new ForbiddenException();
+  }
+  async findOrderById(id: number, user: RequestUser): Promise<Order> {
     const order = await this.orderRepository.findByPk(id);
     if (!order) throw new NotFoundException('order not found');
-    return order;
+    return this.checkOrderOwners(order, user);
   }
 
-  async updateOrder(id: number, updateOrderDto: UpdateOrderDto) {
-    const order = await this.findOrderById(id);
+  async updateOrder(
+    id: number,
+    updateOrderDto: UpdateOrderDto,
+    user: RequestUser,
+  ) {
+    const order = await this.findOrderById(id, user);
     await order.update({ ...updateOrderDto });
     return order;
   }
 
-  async deleteOrder(id: number): Promise<void> {
-    const order = await this.findOrderById(id);
+  async deleteOrder(id: number, user: RequestUser): Promise<void> {
+    const order = await this.findOrderById(id, user);
     order.destroy();
     return;
   }

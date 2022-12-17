@@ -28,7 +28,6 @@ export class AddressService {
   }
   async checkAddressExist(address: CreateAddressDto) {
     const { longitude, latitude } = address;
-    console.log(longitude, latitude);
     const dbAddress = await this.findAddress(longitude, latitude);
     if (dbAddress) return dbAddress.id;
     const newAddress = await this.create(address);

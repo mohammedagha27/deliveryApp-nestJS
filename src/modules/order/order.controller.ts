@@ -13,45 +13,46 @@ import {
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { Auth } from 'src/common/decorators';
+import { Auth, User } from 'src/common/decorators';
 import { PaginationInterceptor } from 'src/common/interceptors/pageination.interceptor';
-import { query } from 'express';
 import { PaginationInfoDto } from 'src/common/dto/PaginationInfoDto';
+import { RequestUser } from 'src/common/interfaces';
+import { RoleValues } from 'src/common/constants';
 
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
-
-  @Auth('admin', 'user')
+  @Auth(RoleValues.ADMIN, RoleValues.USER)
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.orderService.createOrder(createOrderDto);
+  create(@Body() createOrderDto: CreateOrderDto, @User('id') userId: number) {
+    return this.orderService.createOrder(createOrderDto, userId);
   }
 
   @Get()
-  @Auth('admin')
+  @Auth(RoleValues.ADMIN, RoleValues.USER, RoleValues.DELIVERER)
   @UseInterceptors(PaginationInterceptor)
-  findAll(@Query() query: PaginationInfoDto) {
-    return this.orderService.findAllOrders(query);
+  findAll(@Query() query: PaginationInfoDto, @User() user: RequestUser) {
+    return this.orderService.findAllOrders(query, user);
   }
 
-  @Auth('admin', 'user')
+  @Auth(RoleValues.ADMIN, RoleValues.USER, RoleValues.DELIVERER)
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.orderService.findOrderById(id);
+  findOne(@Param('id', ParseIntPipe) id: number, @User() user: RequestUser) {
+    return this.orderService.findOrderById(id, user);
   }
 
-  @Auth('user', 'admin')
+  @Auth(RoleValues.ADMIN, RoleValues.USER, RoleValues.DELIVERER)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateOrderDto: UpdateOrderDto,
+    @User() user: RequestUser,
   ) {
-    return this.orderService.updateOrder(id, updateOrderDto);
+    return this.orderService.updateOrder(id, updateOrderDto, user);
   }
-  @Auth('user')
+  @Auth(RoleValues.ADMIN, RoleValues.USER)
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.orderService.deleteOrder(id);
+  remove(@Param('id', ParseIntPipe) id: number, @User() user: RequestUser) {
+    return this.orderService.deleteOrder(id, user);
   }
 }
