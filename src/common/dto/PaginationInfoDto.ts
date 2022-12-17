@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import { IsNumber, IsOptional } from 'class-validator';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from 'src/common/constants';
-import { toNumber } from 'src/common/utils/cast';
+import { toNumber } from 'src/common/utils';
 
 export class PaginationInfoDto {
   @Transform(({ value }) => toNumber(value, DEFAULT_OFFSET))

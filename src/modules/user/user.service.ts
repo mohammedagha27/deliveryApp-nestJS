@@ -4,7 +4,6 @@ import {
   Inject,
   Injectable,
 } from '@nestjs/common';
-import { NotFoundException } from '@nestjs/common/exceptions';
 import { ConfigService } from '@nestjs/config';
 import { ERRORS, REPOS, SECRET_KEY } from 'src/common/constants';
 import { checkPassword, generateToken, hashPassword } from 'src/common/utils';

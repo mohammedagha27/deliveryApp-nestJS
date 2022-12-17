@@ -8,7 +8,7 @@ import { response } from 'express';
 import { map, Observable } from 'rxjs';
 import { resourceLimits } from 'worker_threads';
 import { DEFAULT_LIMIT, DEFAULT_OFFSET } from '../constants';
-import { toNumber } from '../utils/cast';
+import { toNumber } from '../utils';
 
 @Injectable()
 export class PaginationInterceptor implements NestInterceptor {
