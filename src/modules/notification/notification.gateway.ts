@@ -9,9 +9,6 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { NotificationService } from './notification.service';
-import { CreateNotificationDto } from './dto/create-notification.dto';
-import { UpdateNotificationDto } from './dto/update-notification.dto';
 import { Logger } from '@nestjs/common';
 import { verifyToken } from 'src/common/utils';
 import { ConfigService } from '@nestjs/config';
@@ -19,7 +16,6 @@ import { EVENTS, RoleValues, SECRET_KEY } from 'src/common/constants';
 import { OnEvent } from '@nestjs/event-emitter';
 import { OrderService } from '../order/order.service';
 import { AddressService } from '../address/address.service';
-import { Auth, User } from 'src/common/decorators';
 import { OrderCreatedEvent } from 'src/common/interfaces';
 
 @WebSocketGateway()
@@ -27,7 +23,6 @@ export class NotificationGateway
   implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
   constructor(
-    private readonly notificationService: NotificationService,
     private readonly orderService: OrderService,
     private readonly addressService: AddressService,
     private readonly configService: ConfigService,
@@ -107,7 +102,7 @@ export class NotificationGateway
       this.server
         .to([RoleValues.ADMIN, RoleValues.USER + order.clientId])
         .emit(EVENTS.GET_DISTANCE, {
-          message: 'the delivery is les than 1 km away!',
+          message: 'the delivery is less than 1 km away!',
         });
     }
   }

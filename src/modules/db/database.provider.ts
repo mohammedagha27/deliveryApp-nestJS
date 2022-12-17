@@ -13,7 +13,6 @@ export const databaseProviders = [
         ...configService.get(DATABASE_CONFIG),
       });
       sequelize.addModels([User, Address, Order]);
-      await sequelize.sync();
       return sequelize;
     },
     inject: [ConfigService],
