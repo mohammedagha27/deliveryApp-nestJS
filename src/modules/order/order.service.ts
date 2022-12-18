@@ -13,7 +13,7 @@ import { Order } from './order.model';
 import { getDistance } from 'geolib';
 import { PaginationInfoDto } from 'src/common/dto/PaginationInfoDto';
 import { OrderCreatedEvent, RequestUser } from 'src/common/interfaces';
-import { WhereOptions } from 'sequelize';
+import { Transaction, WhereOptions } from 'sequelize';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 @Injectable()
 export class OrderService {
@@ -23,7 +23,11 @@ export class OrderService {
     private readonly addressService: AddressService,
     private eventEmitter: EventEmitter2,
   ) {}
-  async createOrder(createOrderDto: CreateOrderDto, clientId: number) {
+  async createOrder(
+    createOrderDto: CreateOrderDto,
+    clientId: number,
+    transaction?: Transaction,
+  ) {
     const { price, sourceAddress, targetAddress } = createOrderDto;
     const sourceAddressId = await this.addressService.checkAddressExist(
       sourceAddress,
@@ -35,13 +39,16 @@ export class OrderService {
     const distance = this.calculateDistance(sourceAddress, targetAddress);
     const fee = this.calculateOrderFee(distance);
     const totalPrice = +price + fee;
-    const order = await this.orderRepository.create({
-      ...createOrderDto,
-      clientId,
-      totalPrice,
-      fee,
-      address,
-    });
+    const order = await this.orderRepository.create(
+      {
+        ...createOrderDto,
+        clientId,
+        totalPrice,
+        fee,
+        address,
+      },
+      { transaction },
+    );
     const orderCreatedEvent: OrderCreatedEvent = {
       targetAddress,
       sourceAddress,
@@ -111,15 +118,20 @@ export class OrderService {
     id: number,
     updateOrderDto: UpdateOrderDto,
     user: RequestUser,
+    transaction?: Transaction,
   ) {
     const order = await this.findOrderById(id, user);
-    await order.update({ ...updateOrderDto });
+    await order.update({ ...updateOrderDto }, { transaction });
     return order;
   }
 
-  async deleteOrder(id: number, user: RequestUser): Promise<void> {
+  async deleteOrder(
+    id: number,
+    user: RequestUser,
+    transaction?: Transaction,
+  ): Promise<void> {
     const order = await this.findOrderById(id, user);
-    order.destroy();
+    order.destroy({ transaction });
     return;
   }
 }

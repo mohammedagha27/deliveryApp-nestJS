@@ -15,6 +15,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './user.model';
 import { CreateAddressDto } from '../address/dto/create-address.dto';
 import { PaginationInfoDto } from 'src/common/dto/PaginationInfoDto';
+import { Transaction } from 'sequelize';
 @Injectable()
 export class UserService {
   constructor(
@@ -22,7 +23,7 @@ export class UserService {
     private readonly configService: ConfigService,
     private readonly addressService: AddressService,
   ) {}
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto, transaction?: Transaction) {
     const { address, ...userData } = createUserDto;
 
     const dbUser = await this.findUserByEmail(userData.email);
@@ -31,11 +32,14 @@ export class UserService {
     const hashedPassword = await hashPassword(userData.password);
     const addressId = await this.addressService.checkAddressExist(address);
 
-    const user = await this.userRepository.create({
-      ...userData,
-      password: hashedPassword,
-      addressId,
-    });
+    const user = await this.userRepository.create(
+      {
+        ...userData,
+        password: hashedPassword,
+        addressId,
+      },
+      { transaction },
+    );
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, role, updatedAt, createdAt, ...resData } =
@@ -49,8 +53,8 @@ export class UserService {
     return { ...resData, token };
   }
 
-  async login(loginDto: LoginDto) {
-    const user = await this.findUserByEmail(loginDto.email);
+  async login(loginDto: LoginDto, transaction?: Transaction) {
+    const user = await this.findUserByEmail(loginDto.email, transaction);
     if (!user) throw new BadRequestException(ERRORS.LOGIN_ERROR);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, role, updatedAt, createdAt, ...resData } =
@@ -86,8 +90,11 @@ export class UserService {
     return;
   }
 
-  async findUserByEmail(email: string) {
-    const user = await this.userRepository.findOne<User>({ where: { email } });
+  async findUserByEmail(email: string, transaction?: Transaction) {
+    const user = await this.userRepository.findOne<User>({
+      where: { email },
+      transaction,
+    });
     return user;
   }
 }

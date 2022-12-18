@@ -13,19 +13,27 @@ import {
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
-import { Auth, User } from 'src/common/decorators';
+import { Auth, TransactionParam, User } from 'src/common/decorators';
 import { PaginationInterceptor } from 'src/common/interceptors/pageination.interceptor';
 import { PaginationInfoDto } from 'src/common/dto/PaginationInfoDto';
 import { RequestUser } from 'src/common/interfaces';
 import { RoleValues } from 'src/common/constants';
+import { TransactionInterceptor } from 'src/common/interceptors';
+import { Transaction } from 'sequelize';
 
 @Controller('orders')
 export class OrderController {
   constructor(private readonly orderService: OrderService) {}
+
+  @UseInterceptors(TransactionInterceptor)
   @Auth(RoleValues.ADMIN, RoleValues.USER)
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto, @User('id') userId: number) {
-    return this.orderService.createOrder(createOrderDto, userId);
+  create(
+    @Body() createOrderDto: CreateOrderDto,
+    @User('id') userId: number,
+    @TransactionParam() transaction: Transaction,
+  ) {
+    return this.orderService.createOrder(createOrderDto, userId, transaction);
   }
 
   @Get()
@@ -42,17 +50,24 @@ export class OrderController {
   }
 
   @Auth(RoleValues.ADMIN, RoleValues.USER, RoleValues.DELIVERER)
+  @UseInterceptors(TransactionInterceptor)
   @Patch(':id')
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateOrderDto: UpdateOrderDto,
     @User() user: RequestUser,
+    @TransactionParam() transaction: Transaction,
   ) {
-    return this.orderService.updateOrder(id, updateOrderDto, user);
+    return this.orderService.updateOrder(id, updateOrderDto, user, transaction);
   }
   @Auth(RoleValues.ADMIN, RoleValues.USER)
+  @UseInterceptors(TransactionInterceptor)
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number, @User() user: RequestUser) {
-    return this.orderService.deleteOrder(id, user);
+  remove(
+    @Param('id', ParseIntPipe) id: number,
+    @User() user: RequestUser,
+    @TransactionParam() transaction: Transaction,
+  ) {
+    return this.orderService.deleteOrder(id, user, transaction);
   }
 }
