@@ -16,7 +16,7 @@ import { Address } from '../address/address.model';
   return {
     basicData: {
       attributes: {
-        exclude: ['deletedAt', 'password', 'createdAt', 'updatedAt'],
+        exclude: ['password', 'createdAt', 'updatedAt'],
       },
     },
   };
@@ -24,7 +24,6 @@ import { Address } from '../address/address.model';
 @Table({
   tableName: 'Users',
   timestamps: true,
-  paranoid: true,
 })
 export class User extends Model {
   @PrimaryKey
